@@ -1,0 +1,57 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<configuration>
+	<property name="LOG_ROOT" value="C:\Test\logs" />
+	<property name="LOG_FILE_NAME" value="tweezertrade" />
+	<appender name="STDOUT"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>[%d{yyyy-MM-dd'T'HH:mm:ss.sss'Z'}] [%C] [%t] [%L] [%-5p]
+				%m%n</pattern>
+			
+		</encoder>
+	</appender>
+
+	<!-- appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_ROOT}/${LOG_FILE_NAME}.log</file>
+		<encoder>
+			<pattern>[%d{yyyy-MM-dd'T'HH:mm:ss.sss'Z'}] [%C] [%t] [%L] [%-5p]
+				%m%n</pattern>
+		</encoder>
+	</appender-->
+	
+	<!-- appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<File>C:\Test\logs\mylog.log</File>
+		<encoder>
+			<pattern>[%d{yyyy-MM-dd'T'HH:mm:ss.sss'Z'}] [%C] [%t] [%L] [%-5p]
+				%m%n</pattern>
+		</encoder>
+	</appender-->
+	
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>C:\Test\logs\tweezertrade.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>C:\Test\logs\mylog-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<!-- each archived file's size will be max 10MB -->
+			<maxFileSize>10MB</maxFileSize>    
+			<!-- 30 days to keep -->
+			<maxHistory>10</maxHistory>
+			<!-- total size of all archive files, if total size > 100GB, it will delete old archived file -->
+			<totalSizeCap>100MB</totalSizeCap>
+		</rollingPolicy>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      	<level>INFO</level>
+   		</filter>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%method] - %msg%n%rEx</pattern>
+		</encoder>
+	</appender>
+	
+	<logger name="com.studerw.tda" level="ERROR" />
+	<logger name="org.springframework.web.filter.CommonsRequestLoggingFilter">
+	    <level value="DEBUG" />
+	</logger>
+	<root>
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>
