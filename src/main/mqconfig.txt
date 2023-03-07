@@ -1,0 +1,60 @@
+@Bean
+public CachingDestinationResolver cachingDestinationResolver()
+{
+    JndiDestinationResolver destinationResolver = new JndiDestinationResolver();
+    destinationResolver.setFallbackToDynamicDestination(true);
+    return destinationResolver;
+}
+
+@Bean
+public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory,
+        CachingDestinationResolver destinationResolver)
+{
+    JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
+    jmsTemplate.setDestinationResolver(destinationResolver);
+    jmsTemplate.setSessionTransacted(true);
+    return jmsTemplate;
+}
+
+@Bean
+public DefaultMessageListenerContainer defaultMessageListenerContainer(
+        ConnectionFactory connectionFactory,
+        PlatformTransactionManager transactionManager,
+        MyJmsReceiver myJmsReceiver,
+        CachingDestinationResolver destinationResolver)
+{
+    DefaultMessageListenerContainer dmlc = new DefaultMessageListenerContainer();
+    dmlc.setConnectionFactory(connectionFactory);
+    dmlc.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+    dmlc.setSessionTransacted(true);
+    dmlc.setTransactionManager(transactionManager);
+    dmlc.setConcurrency(concurrency);
+    dmlc.setDestinationName("MY.QUEUE.IN");
+    dmlc.setDestinationResolver(destinationResolver);
+    dmlc.setMessageListener(myJmsReceiver);
+    return dmlc;
+}
+
+
+@Bean
+    public PlatformTransactionManager transactionManager(ConnectionFactory connectionFactory) {
+        return new JmsTransactionManager(connectionFactory);
+    }
+    
+    @Bean
+    public ConnectionFactory connectionFactory(
+            @Value("${jms.host}") String host,
+            @Value("${jms.port}") int port,
+            @Value("${jms.queue.manager}") String queueManager,
+            @Value("${jms.channel}") String channel
+    ) throws JMSException
+    {
+        MQConnectionFactory ibmMq = new MQConnectionFactory();
+        ibmMq.setHostName(host);
+        ibmMq.setPort(port);
+        ibmMq.setQueueManager(queueManager);
+        ibmMq.setTransportType(WMQConstants.WMQ_CM_CLIENT);
+        ibmMq.setChannel(channel);
+        return ibmMq;
+    }
+}
